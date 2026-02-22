@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criador de Conteúdo UGC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            max-width: 600px;
+            width: 100%;
+            padding: 50px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+
+        .upload-area.active {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .upload-area.has-image {
+            padding: 12px;
+            cursor: default;
+            border-style: solid;
+            border-color: #48bb78;
+            background: #f7fafc;
+        }
+
+        .upload-area.has-image:hover {
+            border-color: #48bb78;
+            background: #f7fafc;
+        }
+
+        .upload-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .upload-area p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .upload-area small {
+            display: block;
+            color: #a0aec0;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+        }
+
+        .preview-container.show {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+
+        .remove-image {
+            background: #fed7d7;
+            color: #c53030;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .remove-image:hover {
+            background: #fc8181;
+            color: white;
+        }
+
+        textarea#productName {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #2d3748;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 110px;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        textarea#productName:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: #2d3748;
+        }
+
+        textarea#productName::placeholder {
+            color: #718096;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 40px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-reset:hover:not(:disabled) {
+            background: #cbd5e0;
+        }
+
+        .btn-reset:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 30px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+
+        .loading.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading p {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .loading small {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .video-container {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .video-container.show {
+            display: block;
+        }
+
+        .video-container h3 {
+            color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+            background: #1a202c;
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            background: #48bb78;
+            color: white;
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #c53030;
+            border-left: 4px solid #c53030;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .info-box {
+            background: #edf2f7;
+            border-left: 4px solid #4299e1;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #2c5282;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 Criador de Conteúdo UGC</h1>
+            <p>Transforme sua imagem em um vídeo profissional em poucos minutos</p>
+        </div>
+
+        <form id="ugcForm">
+            <!-- Upload de Imagem -->
+            <div class="form-group">
+                <label>📸 Imagem do Produto</label>
+                <div class="upload-area" id="uploadArea">
+                    <div id="uploadInstructions">
+                        <span class="upload-icon">📸</span>
+                        <p>Clique ou arraste a imagem aqui</p>
+                        <small>Suportados: JPG, PNG, WebP (máx. 10MB)</small>
+                    </div>
+                    <div class="preview-container" id="previewContainer">
+                        <img id="imagePreview" class="image-preview" alt="Preview">
+                        <button type="button" class="remove-image" onclick="removeImage()">Remover Imagem</button>
+                    </div>
+                </div>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+
+            <!-- Prompt -->
+            <div class="form-group">
+                <label for="productName">✍️ Prompt</label>
+                <textarea
+                    id="productName"
+                    placeholder="Digite o que tem em mente!"
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <strong>⏱️ Tempo de Processamento</strong>
+                O processamento do vídeo pode levar até 5 minutos. Não feche esta janela enquanto aguarda.
+            </div>
+
+            <!-- Botões -->
+            <div class="button-group">
+                <button type="submit" class="btn-generate" id="generateBtn" disabled>Gerar Vídeo</button>
+                <button type="button" class="btn-reset" id="resetBtn" onclick="resetForm()">Limpar</button>
+            </div>
+        </form>
+
+        <!-- Carregamento -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processando seu vídeo...</p>
+            <small>Isso pode levar até 5 minutos</small>
+        </div>
+
+        <!-- Vídeo Resultado -->
+        <div class="video-container" id="videoContainer">
+            <h3>✨ Seu Vídeo Está Pronto!</h3>
+            <video id="videoPlayer" controls></video>
+            <a href="#" id="downloadBtn" class="download-btn" download>⬇️ Baixar Vídeo</a>
+        </div>
+
+        <!-- Alerta de Erro -->
+        <div id="alertContainer"></div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadInstructions = document.getElementById('uploadInstructions');
+        const imageInput = document.getElementById('imageInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const productName = document.getElementById('productName');
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const loading = document.getElementById('loading');
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const ugcForm = document.getElementById('ugcForm');
+        const alertContainer = document.getElementById('alertContainer');
+
+        let selectedImage = null;
+
+        // Verifica se o botão Gerar deve ser habilitado
+        function updateGenerateButton() {
+            generateBtn.disabled = !(selectedImage && productName.value.trim());
+        }
+
+        // Upload de imagem - Click (só abre seletor se não houver imagem)
+        uploadArea.addEventListener('click', () => {
+            if (!selectedImage) imageInput.click();
+        });
+
+        // Upload de imagem - Drag & Drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('active');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('active');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageUpload(files[0]);
+            }
+        });
+
+        // Input file change
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        // Habilita/desabilita botão conforme o nome do produto é digitado
+        productName.addEventListener('input', updateGenerateButton);
+
+        function handleImageUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                showAlert('Por favor, selecione um arquivo de imagem válido', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('A imagem deve ter no máximo 10MB', 'error');
+                return;
+            }
+
+            selectedImage = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                uploadInstructions.style.display = 'none';
+                uploadArea.classList.add('has-image');
+                previewContainer.classList.add('show');
+                updateGenerateButton();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage() {
+            selectedImage = null;
+            imageInput.value = '';
+            uploadInstructions.style.display = '';
+            uploadArea.classList.remove('has-image');
+            previewContainer.classList.remove('show');
+            updateGenerateButton();
+        }
+
+        function resetForm() {
+            ugcForm.reset();
+            removeImage();
+            videoContainer.classList.remove('show');
+            alertContainer.innerHTML = '';
+        }
+
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Listener de erro no video player
+        videoPlayer.addEventListener('error', () => {
+            showAlert('Vídeo não pode ser reproduzido. Tente o link de download.', 'error');
+        });
+
+        // Submit do formulário
+        ugcForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await submitForm();
+        });
+
+        async function submitForm() {
+            try {
+                // Desabilita botões durante processamento
+                generateBtn.disabled = true;
+                resetBtn.disabled = true;
+
+                // Limpa alertas e vídeo anterior
+                alertContainer.innerHTML = '';
+                videoContainer.classList.remove('show');
+
+                // Mostra carregamento
+                loading.classList.add('show');
+
+                // Cria FormData com imagem e nome do produto
+                const formData = new FormData();
+                formData.append('image', selectedImage);
+                formData.append('productName', productName.value.trim());
+
+                // Faz requisição POST para o webhook (timeout de 5 minutos)
+                const response = await fetch('https://n8n.socialmaster.com.br/webhook/ugc', {
+                    method: 'POST',
+                    body: formData,
+                    signal: AbortSignal.timeout(300000)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição: ${response.status}`);
+                }
+
+                const text = await response.text();
+
+                if (!text || !text.trim()) {
+                    throw new Error('Servidor retornou resposta vazia');
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    throw new Error('Resposta do servidor não é um JSON válido');
+                }
+
+                // n8n retorna { "video": "..." } no nó "Respond to Webhook"
+                const videoUrl = data.video || data.videoUrl || data.video_url || data.url;
+                if (!videoUrl) {
+                    throw new Error(`Nenhum link de vídeo foi retornado. Resposta: ${JSON.stringify(data)}`);
+                }
+
+                // Exibe vídeo
+                loading.classList.remove('show');
+                videoPlayer.src = videoUrl;
+                downloadBtn.href = videoUrl;
+                videoContainer.classList.add('show');
+
+                showAlert('✅ Vídeo gerado com sucesso!', 'success');
+
+            } catch (error) {
+                loading.classList.remove('show');
+                console.error('Erro:', error);
+                const msg = error.name === 'TimeoutError'
+                    ? 'Tempo esgotado. O servidor demorou mais de 5 minutos.'
+                    : `Erro ao processar: ${error.message}`;
+                showAlert(msg, 'error');
+            } finally {
+                resetBtn.disabled = false;
+                updateGenerateButton();
+            }
+        }
+    </script>
+</body>
+</html>
