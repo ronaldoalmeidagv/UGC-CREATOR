@@ -603,7 +603,7 @@
                 formData.append('productName', productName.value.trim());
 
                 // Faz requisição POST para o webhook (timeout de 5 minutos)
-                const response = await fetch('https://n8n.socialmaster.com.br/webhook/ugc', {
+                const response = await fetch('https://n8n.socialmaster.com.br/webhook-test/ugc', {
                     method: 'POST',
                     body: formData,
                     signal: AbortSignal.timeout(300000)
