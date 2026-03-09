@@ -423,10 +423,10 @@
                     </div>
                     <div class="preview-container" id="previewContainer">
                         <img id="imagePreview" class="image-preview" alt="Preview">
-                        <button type="button" class="remove-image" onclick="removeImage()">Remover Imagem</button>
+                        <button type="button" class="remove-image" onclick="removeImage(event)">Remover Imagem</button>
                     </div>
+                    <input type="file" id="imageInput" accept="image/*">
                 </div>
-                <input type="file" id="imageInput" accept="image/*">
             </div>
 
             <!-- Prompt -->
@@ -550,7 +550,8 @@
             reader.readAsDataURL(file);
         }
 
-        function removeImage() {
+        function removeImage(e) {
+            if (e) e.stopPropagation();
             selectedImage = null;
             imageInput.value = '';
             uploadInstructions.style.display = '';
@@ -603,7 +604,7 @@
                 formData.append('productName', productName.value.trim());
 
                 // Faz requisição POST para o webhook (timeout de 5 minutos)
-                const response = await fetch('https://n8n.socialmaster.com.br/webhook-test/ugc'), {
+                const response = await fetch('https://n8n.socialmaster.com.br/webhook-test/ugc', {
                     method: 'POST',
                     body: formData,
                     signal: AbortSignal.timeout(300000)
